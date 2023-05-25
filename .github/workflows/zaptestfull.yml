@@ -1,38 +1,44 @@
 # This is a basic workflow to help you get started with Actions
+name: OWASP ZAP API Scan
 
-name: CI
-
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+  zap_scan:
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: ZAP Scan
-        uses: zaproxy/action-api-scan@v0.1.1
-        with:
-          target: 'https://hamnaabacus-eval-test.apigee.net/zaptest'
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
-
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
+      - name: Install OWASP ZAP
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+          wget https://github.com/zaproxy/zaproxy/releases/download/v2.11.0/ZAP_2.11.0_Linux.tar.gz
+          tar -xzf ZAP_2.11.0_Linux.tar.gz
+
+      - name: Run ZAP API Scan
+        run: |
+          cd ZAP_2.11.0
+          ./zap.sh -daemon -port 8090 -host 0.0.0.0 -config api.disablekey=true
+          ./zap.sh -cmd -lk9hrdmhp1mql9avhem9jj7k12 -api api.spider.scan -s Default -r https://hamnaabacus-eval-test.apigee.net/zaptest
+          ./zap.sh -cmd -lk9hrdmhp1mql9avhem9jj7k12 -api api.pscan.scan -r ALL -s Default -u https://hamnaabacus-eval-test.apigee.net/zaptest
+
+      - name: Generate ZAP Report
+        run: |
+          ./zap.sh -cmd -lk9hrdmhp1mql9avhem9jj7k12 -api api.report.generate -f report.html -o /zap/report.html
+
+      - name: Download ZAP Report
+        run: |
+          mkdir -p report
+          cp ZAP_2.11.0/report.html report/
+
+      - name: Upload ZAP Report
+        uses: actions/upload-artifact@v2
+        with:
+          name: ZAP Report
+          path: report/
+
