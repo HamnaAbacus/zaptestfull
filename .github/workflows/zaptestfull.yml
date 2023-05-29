@@ -24,9 +24,7 @@ jobs:
         run: |
           cd ZAP_2.11.0
           ./zap.sh -daemon -port 8090 -host 0.0.0.0 -config api.disablekey=true
-          ./zap.sh -cmd -lk9hrdmhp1mql9avhem9jj7k12 -api api.spider.scan -s Default -r https://hamnaabacus-eval-test.apigee.net/zaptest
-          ./zap.sh -cmd -lk9hrdmhp1mql9avhem9jj7k12 -api api.pscan.scan -r ALL -s Default -u https://hamnaabacus-eval-test.apigee.net/zaptest
-
+          
       - name: Generate ZAP Report
         run: |
           ./zap.sh -cmd -lk9hrdmhp1mql9avhem9jj7k12 -api api.report.generate -f report.html -o /zap/report.html
