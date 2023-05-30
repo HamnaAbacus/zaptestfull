@@ -28,6 +28,8 @@ jobs:
       - name: Generate ZAP Report
         run: |
           ./zap.sh -cmd -lk9hrdmhp1mql9avhem9jj7k12 -api api.report.generate -f report.html -o /zap/report.html
+          ./zap.sh -cmd -lk9hrdmhp1mql9avhem9jj7k12 -api api.spider.scan -s Default -r https://hamnaabacus-eval-test.apigee.net/zaptest
+          ./zap.sh -cmd -lk9hrdmhp1mql9avhem9jj7k12 -api api.pscan.scan -r ALL -s Default -u https://hamnaabacus-eval-test.apigee.net/zaptest
 
       - name: Download ZAP Report
         run: |
